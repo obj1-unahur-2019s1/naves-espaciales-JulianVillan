@@ -17,17 +17,17 @@ class NaveEspacial {
 	method cargarCombustible(cant) { combustible += cant }
 	method descargarCombustible(cant) { combustible -= cant }
 	
+	method prepararViaje() { self.cargarCombustible(30000) ; self.acelerar(5000) }	
 	method estaTranquila() = combustible >= 4000 && velocidad <= 12000
 }
 
 class NaveBaliza inherits NaveEspacial {
 	var property color
 	method cambiarColorDeBaliza(newColor) { color = newColor }
-	method prepararViaje(){
+	override method prepararViaje(){
+		super()
 		self.cambiarColorDeBaliza("verde")
 		self.ponerseParaleloAlSol()
-		self.cargarCombustible(30000)
-		self.acelerar(5000)
 	}
 	method recibirAmenaza(){
 		self.irHaciaElSol()
@@ -45,12 +45,11 @@ class NaveDePasajeros inherits NaveEspacial {
 	method cargarBebida(cant){ cantBebidas += cant}
 	method descargarComida(cant) { cantComida -= cant}
 	method descargarBebida(cant){ cantBebidas -= cant}
-	method prepararViaje(){
+	override method prepararViaje(){
+		super()
 		self.cargarComida(4*cantPasajeros)
 		self.cargarBebida(6*cantPasajeros)
 		self.acercarseUnPocoAlSol()
-		self.cargarCombustible(30000)
-		self.acelerar(5000)
 	}
 	method recibirAmenaza(){
 		self.velocidad(velocidad*2)
@@ -63,7 +62,7 @@ class NaveDePasajeros inherits NaveEspacial {
 class NaveDeCombate inherits NaveEspacial {
 	var estaVisible = true
 	var misilesDesplegados = false
-	var mensajesEmitidos = #{}
+	var mensajesEmitidos = []
 	
 	method ponerVisible(){ estaVisible = true }
 	method ponerInvisible(){ estaVisible = false }
@@ -74,17 +73,17 @@ class NaveDeCombate inherits NaveEspacial {
 	method misilesDesplegados() = misilesDesplegados 
 	
 	method emitirMensaje(mensaje){ mensajesEmitidos.add(mensaje) }
-	method mensajesEmitidos() = mensajesEmitidos.size()
+	method mensajesEmitidos() = mensajesEmitidos
 	method primerMensajeEmitido() = mensajesEmitidos.first()
 	method ultimoMensajeEmitido() = mensajesEmitidos.last()
-	method esEscueta() = mensajesEmitidos.forEach{ m => m.size() }
-	method emitioMensaje(mensaje) = mensajesEmitidos.any(mensaje)
-	method prepararViaje(){
+	method esEscueta() = mensajesEmitidos.all{ m => m.size() <= 30 }
+	method emitioMensaje(mensaje) = mensajesEmitidos.contains(mensaje)
+	override method prepararViaje(){
+		super()
 		self.ponerVisible()
 		self.replegarMisiles()
-		self.acelerar(20000)
+		self.acelerar(15000)
 		self.emitirMensaje("Saliendo en mision")
-		self.cargarCombustible(30000)
 	}
 	method recibirAmenaza(){
 		self.acercarseUnPocoAlSol()
@@ -111,9 +110,7 @@ class NaveDeCombateSigilosa inherits NaveDeCombate {
 		self.desplegarMisiles()
 		self.ponerInvisible()
 	}
-	override method estaTranquila() = combustible >= 4000 
-	                               && velocidad <= 12000  
-	                               && estaVisible
+	override method estaTranquila() = super() && estaVisible
 }
 
 
